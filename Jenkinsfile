@@ -1,40 +1,26 @@
 pipeline {
     agent any
     stages {
-        stage ('build') {
+        stage ('Initial cleanup') {
             steps {
-                script {
-                    sh 'echo Building the application'
+                dir ("${WORKSPACE}") {
+                    deleteDir()
                 }
             }
         }
-         stage ('Test') {
+         stage ('Checkout SCM') {
             steps {
-                script {
-                    sh 'echo Testing the application'
-                }
+                git branch: 'main', url: 'https://github.com/laraadeboye/php-todo-app.git'
             }
         }
-        stage ('Package') {
+        stage ('Prepare Dependencies') {
             steps {
-                script {
-                    sh 'echo Packaging the application'
-                }
+                sh 'mv .env.sample .env'
+                sh 'composer install'
+                sh 'php artisan migrate'
+                sh 'php artisan db:seed'
+                sh 'php artisan key:generate'                
             }
-        }
-        stage ('Deploy') {
-            steps {
-                script {
-                    sh 'echo Deploying the application'
-                }
-            }
-        }
-        stage ('Clean up') {
-            steps {
-                script {
-                    sh 'echo Cleaning up the application'
-                }
-            }
-        }
+        }              
     }
 }
