@@ -1,43 +1,53 @@
 pipeline {
     agent any
     stages {
-        stage ('Initial cleanup') {
+        stage('Initial Cleanup') {
             steps {
-                dir ("${WORKSPACE}") {
+                dir("${WORKSPACE}") {
                     deleteDir()
                 }
             }
         }
-         stage ('Checkout SCM') {
+        stage('Checkout SCM') {
             steps {
                 git branch: 'main', url: 'https://github.com/laraadeboye/php-todo-app.git'
             }
         }
-        stage ('Prepare Dependencies') {
+        stage('Prepare Dependencies') {
             steps {
-                sh 'mv .env.sample .env'
-                sh 'echo "DB_HOST=${DB_HOST}" >> .env'
-                sh 'echo "DB_PORT=${DB_PORT}" >> .env'
-                sh 'echo "DB_DATABASE=${DB_DATABASE}" >> .env'
-                sh 'echo "DB_USERNAME=${DB_USERNAME}" >> .env'
-                sh 'echo "DB_PASSWORD=${DB_PASSWORD}" >> .env'
-                // Create the bootstrap/cache directory manually
-                sh 'mkdir -p bootstrap/cache'
-                
-                // Ensure proper permissions 
-                sh 'chown -R jenkins:jenkins bootstrap/cache'
-                sh 'chmod -R 775 bootstrap/cache'
-
-                // Install composer dependencies
-                sh 'composer install'
-
-                // Run Laravel migrations and seed the database
-                sh 'php artisan migrate'
-                sh 'php artisan db:seed'
-
-                // Generate Laravel application key
-                sh 'php artisan key:generate'                
+                script {
+                    // Move .env.sample to .env and set environment variables
+                    sh '''
+                        mv .env.sample .env
+                        echo "DB_HOST=${DB_HOST}" >> .env
+                        echo "DB_PORT=${DB_PORT}" >> .env
+                        echo "DB_DATABASE=${DB_DATABASE}" >> .env
+                        echo "DB_USERNAME=${DB_USERNAME}" >> .env
+                        echo "DB_PASSWORD=${DB_PASSWORD}" >> .env
+                    '''
+                    
+                    // Create bootstrap cache directory with appropriate permissions
+                    sh '''
+                        mkdir -p bootstrap/cache
+                        chown -R jenkins:jenkins bootstrap/cache
+                        chmod -R 775 bootstrap/cache
+                    '''
+                    
+                    // Install Composer dependencies with error handling
+                    sh '''
+                        set -e
+                        composer install --no-scripts
+                    '''
+                    
+                    // Run Laravel artisan commands
+                    sh '''
+                        php artisan key:generate
+                        php artisan clear-compiled
+                        php artisan migrate --force
+                        php artisan db:seed --force
+                    '''
+                }
             }
-        }              
+        }
     }
 }
