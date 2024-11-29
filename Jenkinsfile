@@ -21,6 +21,13 @@ pipeline {
                 sh 'echo "DB_DATABASE=${DB_DATABASE}" >> .env'
                 sh 'echo "DB_USERNAME=${DB_USERNAME}" >> .env'
                 sh 'echo "DB_PASSWORD=${DB_PASSWORD}" >> .env'
+                // Create the bootstrap/cache directory manually
+                sh 'mkdir -p bootstrap/cache'
+                
+                // Ensure proper permissions 
+                sh 'chown -R jenkins:jenkins bootstrap/cache'
+                sh 'chmod -R 775 bootstrap/cache'
+
                 // Install composer dependencies
                 sh 'composer install'
 
