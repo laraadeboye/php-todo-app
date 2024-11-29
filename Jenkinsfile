@@ -21,9 +21,18 @@ pipeline {
                 sh 'echo "DB_DATABASE=${DB_DATABASE}" >> .env'
                 sh 'echo "DB_USERNAME=${DB_USERNAME}" >> .env'
                 sh 'echo "DB_PASSWORD=${DB_PASSWORD}" >> .env'
+                 // Create the bootstrap/cache directory
+                sh 'mkdir -p bootstrap/cache'
+                sh 'chmod -R 775 bootstrap/cache'
+
+                // Install composer dependencies
                 sh 'composer install'
+
+                // Run Laravel migrations and seed the database
                 sh 'php artisan migrate'
                 sh 'php artisan db:seed'
+
+                // Generate Laravel application key
                 sh 'php artisan key:generate'                
             }
         }              
