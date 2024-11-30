@@ -56,7 +56,7 @@ pipeline {
                         
                         # Optionally rebuild caches
                         php artisan config:cache
-                        php artisan route:cache
+                        
                     '''                  
                     
                     // Run Laravel artisan commands
