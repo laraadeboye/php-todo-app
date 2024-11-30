@@ -37,7 +37,9 @@ pipeline {
                     // Create storage and bootstrap directories with appropriate permissions
                     sh '''
                         mkdir -p bootstrap/cache
-                        mkdir -p storage/framework/{sessions,views,cache}
+                        mkdir -p storage/framework/sessions
+                        mkdir -p storage/framework/views
+                        mkdir -p storage/framework/cache
                         chown -R jenkins:jenkins bootstrap storage
                         chmod -R 775 bootstrap storage
                     '''
