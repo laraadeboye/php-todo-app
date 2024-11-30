@@ -34,11 +34,12 @@ pipeline {
                         echo "QUEUE_DRIVER=${QUEUE_DRIVER}" >> .env
                     '''
                     
-                    // Create bootstrap cache directory with appropriate permissions
+                    // Create storage and bootstrap directories with appropriate permissions
                     sh '''
                         mkdir -p bootstrap/cache
-                        chown -R jenkins:jenkins bootstrap/cache
-                        chmod -R 775 bootstrap/cache
+                        mkdir -p storage/framework/{sessions,views,cache}
+                        chown -R jenkins:jenkins bootstrap storage
+                        chmod -R 775 bootstrap storage
                     '''
                     
                     // Install Composer dependencies with error handling
