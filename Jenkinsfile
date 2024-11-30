@@ -24,6 +24,14 @@ pipeline {
                         echo "DB_DATABASE=${DB_DATABASE}" >> .env
                         echo "DB_USERNAME=${DB_USERNAME}" >> .env
                         echo "DB_PASSWORD=${DB_PASSWORD}" >> .env
+                        echo "APP_ENV=${APP_ENV}" >> .env
+                        echo "APP_DEBUG=${APP_DEBUG}" >> .env
+                        echo "LOG_LEVEL=${LOG_LEVEL}" >> .env
+                        echo "APP_KEY=${APP_KEY}" >> .env
+                        echo "APP_URL=${APP_URL}" >> .env
+                        echo "CACHE_DRIVER=${CACHE_DRIVER}" >> .env
+                        echo "SESSION_DRIVER=${SESSION_DRIVER}" >> .env
+                        echo "QUEUE_DRIVER=${QUEUE_DRIVER}" >> .env
                     '''
                     
                     // Create bootstrap cache directory with appropriate permissions
@@ -40,8 +48,7 @@ pipeline {
                     '''
                     
                     // Run Laravel artisan commands
-                    sh '''
-                        php artisan key:generate
+                    sh '''                        
                         php artisan clear-compiled
                         php artisan migrate --force
                         php artisan db:seed --force
