@@ -43,27 +43,15 @@ pipeline {
                         chown -R jenkins:jenkins bootstrap storage
                         chmod -R 775 bootstrap storage
                     '''
+
                      // Install Composer dependencies with error handling
                     sh '''
                         set -e                        
                         composer install 
-                    '''
-
-                    // Refresh Laravel caches and configurations
-                    sh '''
-                        # php artisan cache:clear
-                        # php artisan config:clear
-                        # php artisan view:clear
-                        # php artisan route:clear
-                        
-                        # Optionally rebuild caches
-                        # php artisan config:cache
-                        
-                    '''                  
+                    '''                                    
                     
                     // Run Laravel artisan commands
-                    sh '''                        
-                        # php artisan clear-compiled
+                    sh '''                 
                         php artisan migrate --force
                         php artisan db:seed --force
                     '''
