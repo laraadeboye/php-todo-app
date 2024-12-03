@@ -66,7 +66,7 @@ pipeline {
         } 
         stage ('Code Analysis') {
             steps {
-                sh 'phploc app/ --log-csv build/logs/phploc/csv'                
+                sh 'phploc app/ --log-csv build/logs/phploc/csv/phploc_report.csv'                
             }
         } 
     }
