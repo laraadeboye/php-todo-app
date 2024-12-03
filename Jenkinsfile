@@ -40,8 +40,9 @@ pipeline {
                         mkdir -p storage/framework/sessions
                         mkdir -p storage/framework/views
                         mkdir -p storage/framework/cache
-                        chown -R jenkins:jenkins bootstrap storage
-                        chmod -R 775 bootstrap storage
+                        mkdir -p build/logs/phploc/csv
+                        chown -R jenkins:jenkins bootstrap storage build
+                        chmod -R 775 bootstrap storage build
                     '''
 
                      // Install Composer dependencies with error handling
