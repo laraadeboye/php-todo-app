@@ -39,10 +39,9 @@ pipeline {
                         mkdir -p bootstrap/cache
                         mkdir -p storage/framework/sessions
                         mkdir -p storage/framework/views
-                        mkdir -p storage/framework/cache
-                        mkdir -p build/logs/phploc/csv
-                        chown -R jenkins:jenkins bootstrap storage build
-                        chmod -R 775 bootstrap storage build
+                        mkdir -p storage/framework/cache                        
+                        chown -R jenkins:jenkins bootstrap storage 
+                        chmod -R 775 bootstrap storage 
                     '''
 
                      // Install Composer dependencies with error handling
@@ -66,7 +65,7 @@ pipeline {
         } 
         stage ('Code Analysis') {
             steps {
-                sh 'phploc app/ --log-csv build/logs/phploc/csv/phploc_report.csv'                
+                sh 'phploc app/ --log-csv build/logs/phploc.csv'                
             }
         } 
     }
