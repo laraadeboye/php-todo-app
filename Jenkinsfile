@@ -44,7 +44,7 @@ pipeline {
                         chmod -R 775 bootstrap storage 
                     '''
 
-                     // Install Composer dependencies with error handling
+                    // Install Composer dependencies with error handling
                     sh '''
                         set -e                        
                         composer install 
@@ -58,20 +58,21 @@ pipeline {
                 }
             }
         }
-        stage ('Execute Unit Tests') {
+        stage('Execute Unit Tests') {
             steps {
                 sh './vendor/bin/phpunit'                
             }
         } 
-        stage ('Code Analysis') {
+        stage('Code Analysis') {
             steps {
                 sh 'phploc app/ --log-csv build/logs/phploc.csv'                
             }
         }
-        stage ('Plot Code Coverage report') {
+        stage('Plot Code Coverage report') {
             steps {
-                // Plot phploc metrics
-                plot csvFileName: 'phploc.csv', 
+                script {
+                    // Plot phploc metrics
+                    plot csvFileName: 'phploc.csv', 
                          group: 'Code Metrics', 
                          title: 'PHP Lines of Code', 
                          style: 'line',
@@ -100,8 +101,7 @@ pipeline {
                              ]
                          ]
                 }
-            }                
             }
-        }  
+        }
     }
 }
