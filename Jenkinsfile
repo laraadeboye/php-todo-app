@@ -82,11 +82,11 @@ pipeline {
                                  inclusionFlag: 'OFF', 
                                  url: ''
                              ]
-                         ],
-                         propertiesSeries: [
-                             [name: 'Lines of Code', property: 'Lines of Code (LOC)'],
-                             [name: 'Logical Lines of Code', property: 'Logical Lines of Code (LLOC)']
                          ]
+                         //propertiesSeries: [
+                             //[name: 'Lines of Code', property: 'Lines of Code (LOC)'],
+                             //[name: 'Logical Lines of Code', property: 'Logical Lines of Code (LLOC)']
+                         //]
                     
                     // Plot code coverage
                     plot csvFileName: 'coverage.csv', 
