@@ -67,6 +67,41 @@ pipeline {
             steps {
                 sh 'phploc app/ --log-csv build/logs/phploc.csv'                
             }
-        } 
+        }
+        stage ('Plot Code Coverage report') {
+            steps {
+                // Plot phploc metrics
+                plot csvFileName: 'phploc.csv', 
+                         group: 'Code Metrics', 
+                         title: 'PHP Lines of Code', 
+                         style: 'line',
+                         csvSeries: [
+                             [
+                                 file: 'build/logs/phploc.csv', 
+                                 inclusionFlag: 'OFF', 
+                                 url: ''
+                             ]
+                         ],
+                         propertiesSeries: [
+                             [name: 'Lines of Code', property: 'Lines of Code (LOC)'],
+                             [name: 'Logical Lines of Code', property: 'Logical Lines of Code (LLOC)']
+                         ]
+                    
+                    // Plot code coverage
+                    plot csvFileName: 'coverage.csv', 
+                         group: 'Code Coverage', 
+                         title: 'Test Coverage', 
+                         style: 'bar',
+                         csvSeries: [
+                             [
+                                 file: 'build/logs/clover.xml', 
+                                 inclusionFlag: 'OFF', 
+                                 url: ''
+                             ]
+                         ]
+                }
+            }                
+            }
+        }  
     }
 }
