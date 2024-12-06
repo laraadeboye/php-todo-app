@@ -301,7 +301,7 @@ stage('Upload Artifact to Artifactory') {
                 "files": [
                     {
                         "pattern": "php-todo.zip",
-                        "target": "<name-of-artifact-repo>/php-todo",
+                        "target": "todo-artifact-local/php-todo",
                         "props": "type=zip;status=ready"
                     }
                 ]
