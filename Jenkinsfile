@@ -25,7 +25,7 @@ pipeline {
                         numBuilds: '100',
                         title: 'A- Lines of Code', 
                         style: 'line',
-                        yaxis: 'Count',
+                        yaxis: 'Lines of code',
                         csvSeries: [
                             [
                                 displayTableFlag: false,
@@ -37,7 +37,8 @@ pipeline {
                         propertiesSeries: [
                             [name: 'Lines of Code', property: 'Lines of Code (LOC)'],
                             [name: 'Non-Comment Lines', property: 'Non-Comment Lines of Code (NCLOC)'],
-                            [name: 'Comment Lines', property: 'Comment Lines of Code (CLOC)']
+                            [name: 'Comment Lines', property: 'Comment Lines of Code (CLOC)'],
+                            [name: 'Logical Lines', property: 'Logical Lines of Code (LLOC)']
                         ]
                     )
                     
@@ -69,7 +70,7 @@ pipeline {
                         numBuilds: '100',
                         title: 'C - Average Length', 
                         style: 'line',
-                        yaxis: 'Count',
+                        yaxis: 'Average Lines of Code',
                         csvSeries: [
                             [
                                 displayTableFlag: false,
@@ -91,7 +92,7 @@ pipeline {
                         numBuilds: '100',
                         title: 'D - Relative Cyclomatic Complexity', 
                         style: 'line',
-                        yaxis: 'Complexity',
+                        yaxis: 'Cyclomatic Complexity by Structure',
                         csvSeries: [
                             [
                                 displayTableFlag: false,
@@ -124,8 +125,7 @@ pipeline {
                         propertiesSeries: [
                             [name: 'Total Classes', property: 'Classes'],
                             [name: 'Abstract Classes', property: 'Abstract Classes'],
-                            [name: 'Concrete Classes', property: 'Concrete Classes'],
-                            [name: 'Final Classes', property: 'Final Classes']
+                            [name: 'Concrete Classes', property: 'Concrete Classes']                            
                         ]
                     )
                     
@@ -145,7 +145,7 @@ pipeline {
                             ]
                         ],
                         propertiesSeries: [
-                            [name: 'Total Methods', property: 'Methods'],
+                            [name: 'Methods', property: 'Methods'],
                             [name: 'Non-Static Methods', property: 'Non-Static Methods'],
                             [name: 'Static Methods', property: 'Static Methods'],
                             [name: 'Public Methods', property: 'Public Methods'],
@@ -169,7 +169,7 @@ pipeline {
                             ]
                         ],
                         propertiesSeries: [
-                            [name: 'Total Constants', property: 'Constants'],
+                            [name: 'Constants', property: 'Constants'],
                             [name: 'Global Constants', property: 'Global Constants'],
                             [name: 'Class Constants', property: 'Class Constants']
                         ]
