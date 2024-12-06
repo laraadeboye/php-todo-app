@@ -39,12 +39,12 @@ pipeline {
                         mkdir -p bootstrap/cache
                         mkdir -p storage/framework/sessions
                         mkdir -p storage/framework/views
-                        mkdir -p storage/framework/cache
-                        chown -R jenkins:jenkins bootstrap storage
-                        chmod -R 775 bootstrap storage
+                        mkdir -p storage/framework/cache                        
+                        chown -R jenkins:jenkins bootstrap storage 
+                        chmod -R 775 bootstrap storage 
                     '''
 
-                     // Install Composer dependencies with error handling
+                    // Install Composer dependencies with error handling
                     sh '''
                         set -e                        
                         composer install 
@@ -58,10 +58,234 @@ pipeline {
                 }
             }
         }
-        stage ('Execute Unit Tests') {
+        stage('Execute Unit Tests') {
             steps {
                 sh './vendor/bin/phpunit'                
             }
         } 
+        stage('Code Analysis') {
+            steps {
+                sh 'phploc app/ --log-csv build/logs/phploc.csv'                
+            }
+        }
+        stage('Plot Code Coverage report') {
+            steps {
+                script {
+                    // Plot phploc metrics
+                    plot(
+                        csvFileName: 'phploc.csv', 
+                        group: 'Code Metrics', 
+                        numBuilds: '100',
+                        title: 'A- Lines of Code', 
+                        style: 'line',
+                        yaxis: 'Lines of Code',
+                        csvSeries: [
+                            [
+                                displayTableFlag: false,
+                                exclusionValues: 'Lines of Code (LOC), Comment Lines of Code (CLOC), Non-Comment Lines of Code (NLOC), Logical Lines of Code (LLC)',
+                                file: 'build/logs/phploc.csv', 
+                                inclusionFlag: 'INCLUDE_BY_STRING', 
+                                url: ''
+                            ]
+                        ]
+                    )
+                    
+                    plot(
+                        csvFileName: 'phploc.csv', 
+                        group: 'Code Metrics', 
+                        numBuilds: '100',
+                        title: 'B - Structures Containers', 
+                        style: 'line',
+                        yaxis: 'Count',
+                        csvSeries: [
+                            [
+                                displayTableFlag: false,
+                                exclusionValues: 'Directories, Files, Namespaces',
+                                file: 'build/logs/phploc.csv', 
+                                inclusionFlag: 'INCLUDE_BY_STRING', 
+                                url: ''
+                            ]
+                        ]
+                    )
+                    
+                    plot(
+                        csvFileName: 'phploc.csv', 
+                        group: 'Code Metrics', 
+                        numBuilds: '100',
+                        title: 'C - Average Length', 
+                        style: 'line',
+                        yaxis: 'Count',
+                        csvSeries: [
+                            [
+                                displayTableFlag: false,
+                                exclusionValues: 'Average Class Length (LLOC), Average Method Length (LLOC), Average Function Length (LLOC)',
+                                file: 'build/logs/phploc.csv', 
+                                inclusionFlag: 'INCLUDE_BY_STRING', 
+                                url: ''
+                            ]
+                        ]
+                    )
+                    
+                    plot(
+                        csvFileName: 'phploc.csv', 
+                        group: 'Code Metrics', 
+                        numBuilds: '100',
+                        title: 'D - Relative Cyclomatic Complexity', 
+                        style: 'line',
+                        yaxis: 'Cyclomatic Complexity  by Structure',
+                        csvSeries: [
+                            [
+                                displayTableFlag: false,
+                                exclusionValues: 'Cyclomatic Complexity / Lines of Code, Cyclomatic Complexity / Number of Methods',
+                                file: 'build/logs/phploc.csv', 
+                                inclusionFlag: 'INCLUDE_BY_STRING', 
+                                url: ''
+                            ]
+                        ]
+                    )
+                    
+                    plot(
+                        csvFileName: 'phploc.csv', 
+                        group: 'Code Metrics', 
+                        numBuilds: '100',
+                        title: 'E - Types of Classes', 
+                        style: 'line',
+                        yaxis: 'Count',
+                        csvSeries: [
+                            [
+                                displayTableFlag: false,
+                                exclusionValues: 'Classes, Abstract Classes, Concrete Classes',
+                                file: 'build/logs/phploc.csv', 
+                                inclusionFlag: 'INCLUDE_BY_STRING', 
+                                url: ''
+                            ]
+                        ]
+                    )
+                    
+                    plot(
+                        csvFileName: 'phploc.csv', 
+                        group: 'Code Metrics', 
+                        numBuilds: '100',
+                        title: 'F - Types of Methods', 
+                        style: 'line',
+                        yaxis: 'Count',
+                        csvSeries: [
+                            [
+                                displayTableFlag: false,
+                                exclusionValues: 'Methods, Non-Static Methods, Public Methods, Non-Public Methods',
+                                file: 'build/logs/phploc.csv', 
+                                inclusionFlag: 'INCLUDE_BY_STRING', 
+                                url: ''
+                            ]
+                        ]
+                    )
+                    
+                    plot(
+                        csvFileName: 'phploc.csv', 
+                        group: 'Code Metrics', 
+                        numBuilds: '100',
+                        title: 'G - Types of Constants', 
+                        style: 'line',
+                        yaxis: 'Count',
+                        csvSeries: [
+                            [
+                                displayTableFlag: false,
+                                exclusionValues: 'Constants, Global Constants, Class Constants',
+                                file: 'build/logs/phploc.csv', 
+                                inclusionFlag: 'INCLUDE_BY_STRING', 
+                                url: ''
+                            ]
+                        ]
+                    )
+                    
+                    plot(
+                        csvFileName: 'phploc.csv', 
+                        group: 'Code Metrics', 
+                        numBuilds: '100',
+                        title: 'H - Types of Functions', 
+                        style: 'line',
+                        yaxis: 'Count',
+                        csvSeries: [
+                            [
+                                displayTableFlag: false,
+                                exclusionValues: 'Functions, Named Functions, Anonymous Functions',
+                                file: 'build/logs/phploc.csv', 
+                                inclusionFlag: 'INCLUDE_BY_STRING', 
+                                url: ''
+                            ]
+                        ]
+                    )
+                    
+                    plot(
+                        csvFileName: 'phploc.csv', 
+                        group: 'Code Metrics', 
+                        numBuilds: '100',
+                        title: 'I - Testing', 
+                        style: 'line',
+                        yaxis: 'Count',
+                        csvSeries: [
+                            [
+                                displayTableFlag: false,
+                                exclusionValues: 'Test Classes, Test Methods',
+                                file: 'build/logs/phploc.csv', 
+                                inclusionFlag: 'INCLUDE_BY_STRING', 
+                                url: ''
+                            ]
+                        ]
+                    )
+                    
+                    plot(
+                        csvFileName: 'phploc.csv', 
+                        group: 'Code Metrics', 
+                        numBuilds: '100',
+                        title: 'AB - Code Structure by Logical Lines of Code (LLOC)', 
+                        style: 'line',
+                        yaxis: 'Logical Lines of Code',
+                        csvSeries: [
+                            [
+                                displayTableFlag: false,
+                                exclusionValues: 'Logical Lines of Code (LLOC), Classes Length, Functions Length, LLOC outside functions or classes',
+                                file: 'build/logs/phploc.csv', 
+                                inclusionFlag: 'INCLUDE_BY_STRING', 
+                                url: ''
+                            ]
+                        ]
+                    )
+                    
+                    plot(
+                        csvFileName: 'phploc.csv', 
+                        group: 'Code Metrics', 
+                        numBuilds: '100',
+                        title: 'BB - Structure Objects', 
+                        style: 'line',
+                        yaxis: 'Count',
+                        csvSeries: [
+                            [
+                                displayTableFlag: false,
+                                exclusionValues: 'Interfaces, Traits, Classes, Methods, Functions, Constants',
+                                file: 'build/logs/phploc.csv', 
+                                inclusionFlag: 'INCLUDE_BY_STRING', 
+                                url: ''
+                            ]
+                        ]                       
+                    )
+                    
+                    // Plot code coverage
+                    plot(
+                        csvFileName: 'coverage.csv', 
+                        group: 'Code Coverage', 
+                        title: 'Test Coverage', 
+                        style: 'bar',
+                        csvSeries: [
+                            [
+                                file: 'build/logs/clover.xml', 
+                                inclusionFlag: 'OFF', 
+                                url: ''
+                            ]
+                        ]
+                    )
+                }
+            }
+        }
     }
 }
