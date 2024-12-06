@@ -267,11 +267,7 @@ pipeline {
                                 inclusionFlag: 'INCLUDE_BY_STRING', 
                                 url: ''
                             ]
-                        ],
-                        propertiesSeries: [
-                            [name: 'Lines of Code', property: 'Lines of Code (LOC)'],
-                            [name: 'Logical Lines of Code', property: 'Logical Lines of Code (LLOC)']
-                        ]
+                        ]                       
                     )
                     
                     // Plot code coverage
