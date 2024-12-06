@@ -13,32 +13,80 @@ pipeline {
                 git branch: 'main', url: 'https://github.com/laraadeboye/php-todo-app.git'
             }
         }
-        // ... (previous stages remain the same)
-        
+        stage('Prepare Dependencies') {
+            steps {
+                script {
+                    // Move .env.sample to .env and set environment variables
+                    sh '''
+                        mv .env.sample .env
+                        echo "DB_HOST=${DB_HOST}" >> .env
+                        echo "DB_PORT=${DB_PORT}" >> .env
+                        echo "DB_DATABASE=${DB_DATABASE}" >> .env
+                        echo "DB_USERNAME=${DB_USERNAME}" >> .env
+                        echo "DB_PASSWORD=${DB_PASSWORD}" >> .env
+                        echo "APP_ENV=${APP_ENV}" >> .env
+                        echo "APP_DEBUG=${APP_DEBUG}" >> .env
+                        echo "LOG_LEVEL=${LOG_LEVEL}" >> .env
+                        echo "APP_KEY=${APP_KEY}" >> .env
+                        echo "APP_URL=${APP_URL}" >> .env
+                        echo "CACHE_DRIVER=${CACHE_DRIVER}" >> .env
+                        echo "SESSION_DRIVER=${SESSION_DRIVER}" >> .env
+                        echo "QUEUE_DRIVER=${QUEUE_DRIVER}" >> .env
+                    '''
+                    
+                    // Create storage and bootstrap directories with appropriate permissions
+                    sh '''
+                        mkdir -p bootstrap/cache
+                        mkdir -p storage/framework/sessions
+                        mkdir -p storage/framework/views
+                        mkdir -p storage/framework/cache                        
+                        chown -R jenkins:jenkins bootstrap storage 
+                        chmod -R 775 bootstrap storage 
+                    '''
+
+                    // Install Composer dependencies with error handling
+                    sh '''
+                        set -e                        
+                        composer install 
+                    '''                                    
+                    
+                    // Run Laravel artisan commands
+                    sh '''                 
+                        php artisan migrate --force
+                        php artisan db:seed --force
+                    '''
+                }
+            }
+        }
+        stage('Execute Unit Tests') {
+            steps {
+                sh './vendor/bin/phpunit'                
+            }
+        } 
+        stage('Code Analysis') {
+            steps {
+                sh 'phploc app/ --log-csv build/logs/phploc.csv'                
+            }
+        }
         stage('Plot Code Coverage report') {
             steps {
                 script {
-                    // Plot Lines of Code Metrics
+                    // Plot phploc metrics
                     plot(
                         csvFileName: 'phploc.csv', 
                         group: 'Code Metrics', 
                         numBuilds: '100',
                         title: 'A- Lines of Code', 
                         style: 'line',
-                        yaxis: 'Lines of code',
+                        yaxis: 'Lines of Code',
                         csvSeries: [
                             [
                                 displayTableFlag: false,
+                                exclusionValues: 'Lines of Code (LOC), Comment Lines of Code (CLOC), Non-Comment Lines of Code (NLOC), Logical Lines of Code (LLC)',
                                 file: 'build/logs/phploc.csv', 
                                 inclusionFlag: 'INCLUDE_BY_STRING', 
                                 url: ''
                             ]
-                        ],
-                        propertiesSeries: [
-                            [name: 'Lines of Code', property: 'Lines of Code (LOC)'],
-                            [name: 'Non-Comment Lines', property: 'Non-Comment Lines of Code (NCLOC)'],
-                            [name: 'Comment Lines', property: 'Comment Lines of Code (CLOC)'],
-                            [name: 'Logical Lines', property: 'Logical Lines of Code (LLOC)']
                         ]
                     )
                     
@@ -52,15 +100,11 @@ pipeline {
                         csvSeries: [
                             [
                                 displayTableFlag: false,
+                                exclusionValues: 'Directories, Files, Namespaces',
                                 file: 'build/logs/phploc.csv', 
                                 inclusionFlag: 'INCLUDE_BY_STRING', 
                                 url: ''
                             ]
-                        ],
-                        propertiesSeries: [
-                            [name: 'Directories', property: 'Directories'],
-                            [name: 'Files', property: 'Files'],
-                            [name: 'Namespaces', property: 'Namespaces']
                         ]
                     )
                     
@@ -70,19 +114,15 @@ pipeline {
                         numBuilds: '100',
                         title: 'C - Average Length', 
                         style: 'line',
-                        yaxis: 'Average Lines of Code',
+                        yaxis: 'Count',
                         csvSeries: [
                             [
                                 displayTableFlag: false,
+                                exclusionValues: 'Average Class Length (LLOC), Average Method Length (LLOC), Average Function Length (LLOC)',
                                 file: 'build/logs/phploc.csv', 
                                 inclusionFlag: 'INCLUDE_BY_STRING', 
                                 url: ''
                             ]
-                        ],
-                        propertiesSeries: [
-                            [name: 'Average Function Length', property: 'Average Function Length (LLOC)'],
-                            [name: 'Average Class Length', property: 'Average Class Length'],
-                            [name: 'Average Method Length', property: 'Average Method Length']
                         ]
                     )
                     
@@ -92,18 +132,15 @@ pipeline {
                         numBuilds: '100',
                         title: 'D - Relative Cyclomatic Complexity', 
                         style: 'line',
-                        yaxis: 'Cyclomatic Complexity by Structure',
+                        yaxis: 'Cyclomatic Complexity  by Structure',
                         csvSeries: [
                             [
                                 displayTableFlag: false,
+                                exclusionValues: 'Cyclomatic Complexity / Lines of Code, Cyclomatic Complexity / Number of Methods',
                                 file: 'build/logs/phploc.csv', 
                                 inclusionFlag: 'INCLUDE_BY_STRING', 
                                 url: ''
                             ]
-                        ],
-                        propertiesSeries: [
-                            [name: 'Complexity/LOC', property: 'Cyclomatic Complexity / Lines of Code'],
-                            [name: 'Complexity/Number of Methods', property: 'Cyclomatic Complexity / Number of Methods']
                         ]
                     )
                     
@@ -117,15 +154,11 @@ pipeline {
                         csvSeries: [
                             [
                                 displayTableFlag: false,
+                                exclusionValues: 'Classes, Abstract Classes, Concrete Classes',
                                 file: 'build/logs/phploc.csv', 
                                 inclusionFlag: 'INCLUDE_BY_STRING', 
                                 url: ''
                             ]
-                        ],
-                        propertiesSeries: [
-                            [name: 'Total Classes', property: 'Classes'],
-                            [name: 'Abstract Classes', property: 'Abstract Classes'],
-                            [name: 'Concrete Classes', property: 'Concrete Classes']                            
                         ]
                     )
                     
@@ -139,17 +172,11 @@ pipeline {
                         csvSeries: [
                             [
                                 displayTableFlag: false,
+                                exclusionValues: 'Methods, Non-Static Methods, Public Methods, Non-Public Methods',
                                 file: 'build/logs/phploc.csv', 
                                 inclusionFlag: 'INCLUDE_BY_STRING', 
                                 url: ''
                             ]
-                        ],
-                        propertiesSeries: [
-                            [name: 'Methods', property: 'Methods'],
-                            [name: 'Non-Static Methods', property: 'Non-Static Methods'],
-                            [name: 'Static Methods', property: 'Static Methods'],
-                            [name: 'Public Methods', property: 'Public Methods'],
-                            [name: 'Non-Public Methods', property: 'Non-Public Methods']
                         ]
                     )
                     
@@ -163,15 +190,11 @@ pipeline {
                         csvSeries: [
                             [
                                 displayTableFlag: false,
+                                exclusionValues: 'Constants, Global Constants, Class Constants',
                                 file: 'build/logs/phploc.csv', 
                                 inclusionFlag: 'INCLUDE_BY_STRING', 
                                 url: ''
                             ]
-                        ],
-                        propertiesSeries: [
-                            [name: 'Constants', property: 'Constants'],
-                            [name: 'Global Constants', property: 'Global Constants'],
-                            [name: 'Class Constants', property: 'Class Constants']
                         ]
                     )
                     
@@ -185,15 +208,11 @@ pipeline {
                         csvSeries: [
                             [
                                 displayTableFlag: false,
+                                exclusionValues: 'Functions, Named Functions, Anonymous Functions',
                                 file: 'build/logs/phploc.csv', 
                                 inclusionFlag: 'INCLUDE_BY_STRING', 
                                 url: ''
                             ]
-                        ],
-                        propertiesSeries: [
-                            [name: 'Total Functions', property: 'Functions'],
-                            [name: 'Named Functions', property: 'Named Functions'],
-                            [name: 'Anonymous Functions', property: 'Anonymous Functions']
                         ]
                     )
                     
@@ -207,14 +226,51 @@ pipeline {
                         csvSeries: [
                             [
                                 displayTableFlag: false,
+                                exclusionValues: 'Test Classes, Test Methods',
+                                file: 'build/logs/phploc.csv', 
+                                inclusionFlag: 'INCLUDE_BY_STRING', 
+                                url: ''
+                            ]
+                        ]
+                    )
+                    
+                    plot(
+                        csvFileName: 'phploc.csv', 
+                        group: 'Code Metrics', 
+                        numBuilds: '100',
+                        title: 'AB - Code Structure by Logical Lines of Code (LLOC)', 
+                        style: 'line',
+                        yaxis: 'Logical Lines of Code',
+                        csvSeries: [
+                            [
+                                displayTableFlag: false,
+                                exclusionValues: 'Logical Lines of Code (LLOC), Classes Length, Functions Length, LLOC outside functions or classes',
+                                file: 'build/logs/phploc.csv', 
+                                inclusionFlag: 'INCLUDE_BY_STRING', 
+                                url: ''
+                            ]
+                        ]
+                    )
+                    
+                    plot(
+                        csvFileName: 'phploc.csv', 
+                        group: 'Code Metrics', 
+                        numBuilds: '100',
+                        title: 'BB - Structure Objects', 
+                        style: 'line',
+                        yaxis: 'Count',
+                        csvSeries: [
+                            [
+                                displayTableFlag: false,
+                                exclusionValues: 'Interfaces, Traits, Classes, Methods, Functions, Constants',
                                 file: 'build/logs/phploc.csv', 
                                 inclusionFlag: 'INCLUDE_BY_STRING', 
                                 url: ''
                             ]
                         ],
                         propertiesSeries: [
-                            [name: 'Test Classes', property: 'Test Classes'],
-                            [name: 'Test Methods', property: 'Test Methods']
+                            [name: 'Lines of Code', property: 'Lines of Code (LOC)'],
+                            [name: 'Logical Lines of Code', property: 'Logical Lines of Code (LLOC)']
                         ]
                     )
                     
