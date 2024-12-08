@@ -316,7 +316,10 @@ stage('Deploy to Dev environment') {
                 build job: 'ansible-config-mgt/main', parameters: [
                     [
                         $class: 'StringParameterValue', name: 'inventory', value: 'dev'                        
-                    ]                  
+                    ],
+                    [
+                        $class: 'StringParameterValue', name: 'tags', value: 'todo'                        
+                    ]                   
                 ], propagate:false, wait:true
                                 
             }
