@@ -315,7 +315,8 @@ stage('Deploy to Dev environment') {
             steps {
                 build job: 'ansible-config-mgt/main', parameters: [
                     [
-                        $class: 'StringParameterValue', name: 'env', value: 'dev'
+                        $class: 'StringParameterValue', name: 'env', value: 'dev.yml'
+                        $class: 'StringParameterValue', name: 'tags', value: 'todo'
                     ]
                 ], propagate:false, wait:true
                                 
