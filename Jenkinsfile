@@ -311,5 +311,18 @@ stage('Upload Artifact to Artifactory') {
         }
     }
 }
+stage('Deploy to Dev environment') {
+            steps {
+                build job: 'ansible-config-mgt/main', parameters: [
+                    [
+                        $class: 'StringParameterValue', name: 'inventory', value: 'dev'                        
+                    ],
+                    [
+                        $class: 'StringParameterValue', name: 'tags', value: 'todo'                        
+                    ]                   
+                ], propagate:false, wait:true
+                                
+            }
+        }
     }
 }
