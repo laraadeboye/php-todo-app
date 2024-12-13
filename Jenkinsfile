@@ -330,7 +330,7 @@ stage('Deploy to Dev environment') {
         }
         steps {
             withSonarQubeEnv('sonarqube') {
-                sh "${scannerHome}/bin/sonar-scanner"
+                sh "${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=php-todo"
             }
 
         }
